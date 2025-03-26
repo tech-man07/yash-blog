@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamp Ordering: Ensuring Database Concurrency</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFydrQlSe4ttRSG-ohJ39VcBDF6F4IhZEFRzTNjDfpFj6Ev0JRQdRQITYW&s=10');
+            color:#333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color:pink;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: magenta;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            background-color: #e0f7fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+}
+img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timestamp Ordering</h1>
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT6nXNln2PDsQ6HN8gmHIKSHFRw6RAjmwOZ6oChgTtLtuEth4DoHZFrAPT&s=10" alt="Database Recovery Illustration" width="600">
+        <h2>Introduction</h2>
+<p>Hello, I'm Yash, and I'm here to explain the concept of timestamp ordering in database concurrency control. Timestamp ordering is a method used to ensure that transactions execute in a serializable order, preventing conflicts and maintaining data consistency. It assigns timestamps to transactions, and these timestamps dictate the order in which operations are performed. By comparing timestamps, the system can determine if a transaction's operation should be allowed or aborted, ensuring that older transactions are prioritized. This approach is crucial for managing concurrent access to shared data and preserving database integrity.
+</p> <h2>What is Timestamp Ordering?</h2>
+
+        <p>Timestamp Ordering assigns a unique timestamp to each transaction. These timestamps are used to determine the order in which transactions should be executed. Older transactions (with earlier timestamps) are given priority over newer ones.</p>
+
+        <h2>How it Works</h2>
+
+        <p>The system maintains two timestamps for each data item:</p>
+
+        <ul>
+            <li><strong>Read Timestamp (RTS):</strong> The largest timestamp of any transaction that read the data item.</li>
+            <li><strong>Write Timestamp (WTS):</strong> The largest timestamp of any transaction that wrote the data item.</li>
+        </ul>
+
+        <p>When a transaction attempts to read or write a data item, the system checks these timestamps to ensure the operation maintains serializability.</p>
+
+        <h2>Rules for Timestamp Ordering</h2>
+
+        <p>The following rules are applied:</p>
+
+        <ul>
+            <li><strong>Read Operation:</strong>
+                <ul>
+                    <li>If the transaction's timestamp is less than WTS, the transaction is rolled back (Thomas Write Rule can be used to ignore old writes).</li>
+                    <li>Otherwise, the read operation is allowed, and RTS is updated if necessary.</li>
+                </ul>
+            </li>
+            <li><strong>Write Operation:</strong>
+                <ul>
+                    <li>If the transaction's timestamp is less than RTS, the transaction is rolled back.</li>
+                    <li>If the transaction's timestamp is less than WTS, the transaction is rolled back (or potentially ignored with Thomas Write Rule).</li>
+                    <li>Otherwise, the write operation is allowed, and WTS is updated.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>Example</h2>
+
+        <p>Consider two transactions, T1 and T2, with timestamps TS(T1) = 10 and TS(T2) = 20.</p>
+        <p>T1 tries to write to data item A, and then T2 tries to read A. Because TS(T1) < TS(T2), T1's write is allowed first. Then, T2's read is also allowed, because TS(T2) > WTS(A) after T1's write.</p>
+
+        <p>Here's a simplified conceptual code snippet:</p>
+        <div class="code-block">
+            <pre>
+                <code>
+                    if (transaction.timestamp < dataItem.writeTimestamp) {
+                        // Rollback transaction
+                        rollback(transaction);
+                    } else {
+                        // Perform operation
+                        dataItem.writeTimestamp = transaction.timestamp;
+                    }
+                </code>
+            </pre>
+        </div>
+
+        <h2>Advantages and Disadvantages</h2>
+
+        <p><strong>Advantages:</strong></p>
+        <ul>
+            <li>Simple to implement.</li>
+            <li>Guarantees serializability.</li>
+        </ul>
+
+        <p><strong>Disadvantages:</strong></p>
+        <ul>
+            <li>Can lead to cascading rollbacks.</li>
+            <li>Starvation is possible if a transaction consistently has an older timestamp.</li>
+        </ul>
+
+        <p>Timestamp Ordering is a fundamental concept in database concurrency control, ensuring that transactions are executed in a consistent and predictable manner.</p>
+
+    </div>
+    <footer class="footer">
+        <p>&copy; 2024 Database Concepts</p>
+    </footer>
+</body>
+</html>
